@@ -710,8 +710,8 @@ function exportCSV() {
 function generateCalendarLink(type) {
   // Event times in Lagos (WAT = UTC+1)
   const startHour = type === 'spa' ? 12 : 14; // 12PM or 2PM
-  const start = `20250328T${String(startHour).padStart(2,'0')}0000`; // local time
-  const end   = `20250328T170000`; // 5PM for both
+  const start = `20260328T${String(startHour).padStart(2,'0')}0000`; // local time
+  const end   = `20260328T170000`; // 5PM for both
 
   // ICS file content (works on Apple Calendar, Outlook, and as fallback)
   const icsContent = [
