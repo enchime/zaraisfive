@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zara's Birthday Playdate 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #f4a7b9;
+    --rose-deep: #e07a97;
+    --lavender: #c9b8e8;
+    --lavender-deep: #a891d4;
+    --peach: #ffd6c0;
+    --cream: #fff8f5;
+    --blush: #fde8ee;
+    --text: #4a2c3a;
+    --text-light: #8a6070;
+    --white: #ffffff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--text); min-height:100vh; overflow-x:hidden; }
+  body::before {
+    content:''; position:fixed; inset:0;
+    background: radial-gradient(ellipse at 20% 20%, rgba(244,167,185,0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(201,184,232,0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 50%, rgba(255,214,192,0.15) 0%, transparent 70%);
+    z-index:-1; animation:bgShift 8s ease-in-out infinite alternate;
+  }
+  @keyframes bgShift { 0%{opacity:1} 100%{opacity:0.6;filter:hue-rotate(15deg)} }
+
+  .petal { position:fixed; font-size:1.2rem; animation:floatDown linear infinite; opacity:0.45; pointer-events:none; z-index:0; }
+  @keyframes floatDown {
+    0%{transform:translateY(-50px) rotate(0deg);opacity:0} 10%{opacity:0.5} 90%{opacity:0.3}
+    100%{transform:translateY(110vh) rotate(360deg);opacity:0}
+  }
+
+  .container { max-width:520px; margin:0 auto; padding:2rem 1.5rem; position:relative; z-index:1; }
+  .screen { display:none; }
+  .screen.active { display:block; animation:fadeIn 0.45s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── INVITE CARD ── */
+  .invite-card {
+    background:var(--white); border-radius:28px; padding:2.5rem 2rem;
+    box-shadow:0 8px 40px rgba(224,122,151,0.15),0 2px 8px rgba(0,0,0,0.04);
+    text-align:center; position:relative; overflow:hidden;
+  }
+  .invite-card::before {
+    content:''; position:absolute; top:0;left:0;right:0; height:6px;
+    background:linear-gradient(90deg,var(--rose),var(--lavender),var(--peach),var(--rose));
+    background-size:200% 100%; animation:shimmer 3s linear infinite;
+  }
+  @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+
+  .emoji-row { font-size:2rem; margin-bottom:0.5rem; animation:bounce 2s ease-in-out infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+  .invite-card h1 { font-family:'Playfair Display',serif; font-size:2.4rem; color:var(--rose-deep); line-height:1.1; margin-bottom:0.3rem; }
+  .invite-card h1 span { font-style:italic; color:var(--lavender-deep); }
+  .tagline { font-size:0.85rem; color:var(--text-light); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:1.8rem; }
+
+  .details-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-bottom:1.6rem; }
+  .detail-pill { background:var(--blush); border-radius:14px; padding:0.9rem 0.7rem; }
+  .detail-pill.full { grid-column:1/-1; }
+  .detail-pill .icon { font-size:1.3rem; display:block; margin-bottom:0.2rem; }
+  .detail-pill .label { font-size:0.65rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-light); }
+  .detail-pill .value { font-size:0.9rem; font-weight:500; color:var(--text); margin-top:0.1rem; }
+
+  .deadline-note {
+    background:var(--blush); border-radius:12px; padding:0.75rem 1rem;
+    font-size:0.82rem; color:var(--text); margin-bottom:1.4rem; line-height:1.5;
+  }
+
+  .divider { height:1px; background:linear-gradient(90deg,transparent,var(--rose),transparent); margin:1.4rem 0; }
+  .access-section h3 { font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:0.4rem; }
+  .access-section > p { font-size:0.82rem; color:var(--text-light); margin-bottom:1rem; }
+
+  /* ── RSVP CARD ── */
+  .rsvp-card { background:var(--white); border-radius:28px; padding:2rem 1.8rem; box-shadow:0 8px 40px rgba(224,122,151,0.15); }
+  .rsvp-card h2 { font-family:'Playfair Display',serif; font-size:1.7rem; color:var(--rose-deep); margin-bottom:0.2rem; }
+  .rsvp-card .sub { font-size:0.85rem; color:var(--text-light); margin-bottom:1rem; }
+
+  /* Event detail banner shown on RSVP page */
+  .event-banner {
+    border-radius:16px; padding:1rem 1.1rem;
+    margin-bottom:1.4rem; font-size:0.85rem; line-height:1.6; color:var(--text);
+  }
+  .event-banner.spa {
+    background:linear-gradient(135deg,rgba(201,184,232,0.25),rgba(244,167,185,0.2));
+    border:1.5px solid var(--lavender);
+  }
+  .event-banner.gen {
+    background:linear-gradient(135deg,rgba(255,214,192,0.3),rgba(244,167,185,0.15));
+    border:1.5px solid var(--rose);
+  }
+  .event-banner .banner-title { font-family:'Playfair Display',serif; font-size:1rem; margin-bottom:0.4rem; color:var(--rose-deep); }
+  .event-banner .banner-row { display:flex; gap:0.5rem; margin-bottom:0.25rem; align-items:flex-start; }
+  .event-banner .bicon { flex-shrink:0; }
+  .arrival-note { margin-top:0.6rem; padding-top:0.6rem; border-top:1px solid rgba(168,145,212,0.3); font-size:0.8rem; color:var(--lavender-deep); font-weight:500; }
+
+  .field { margin-bottom:1.2rem; }
+  .field label { display:block; font-size:0.75rem; font-weight:500; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-light); margin-bottom:0.4rem; }
+
+  input,select,textarea {
+    width:100%; padding:0.85rem 1rem; border:2px solid #f0dde5; border-radius:12px;
+    font-family:'DM Sans',sans-serif; font-size:0.95rem; background:var(--cream);
+    color:var(--text); outline:none; transition:border-color 0.2s,box-shadow 0.2s;
+  }
+  input:focus,select:focus,textarea:focus { border-color:var(--lavender-deep); box-shadow:0 0 0 4px rgba(201,184,232,0.18); }
+  textarea { resize:vertical; min-height:70px; }
+
+  .btn { width:100%; padding:1rem; border:none; border-radius:14px; font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:500; cursor:pointer; transition:transform 0.15s,box-shadow 0.15s; margin-top:0.8rem; }
+  .btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(224,122,151,0.3); }
+  .btn:active { transform:translateY(0); }
+  .btn-primary { background:linear-gradient(135deg,var(--rose-deep),var(--lavender-deep)); color:white; }
+  .btn-secondary { background:var(--blush); color:var(--rose-deep); }
+
+  .error-msg { color:var(--rose-deep); font-size:0.82rem; margin-top:0.5rem; text-align:center; display:none; }
+
+  .attend-toggle { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; }
+  .attend-btn { padding:0.8rem; border:2px solid #f0dde5; border-radius:12px; background:var(--cream); font-family:'DM Sans',sans-serif; font-size:0.88rem; cursor:pointer; transition:all 0.2s; color:var(--text); width:100%; }
+  .attend-btn.selected.yes { border-color:#7bc47b; background:#e8f8e8; color:#2e7a2e; font-weight:600; }
+  .attend-btn.selected.no  { border-color:var(--rose-deep); background:var(--blush); color:var(--rose-deep); font-weight:600; }
+
+  /* ── SUCCESS ── */
+  .success-card { background:var(--white); border-radius:28px; padding:3rem 2rem; box-shadow:0 8px 40px rgba(224,122,151,0.15); text-align:center; }
+  .big-emoji { font-size:4rem; display:block; margin-bottom:1rem; animation:pop 0.5s cubic-bezier(0.36,0.07,0.19,0.97); }
+  @keyframes pop { 0%{transform:scale(0)} 70%{transform:scale(1.2)} 100%{transform:scale(1)} }
+  .success-card h2 { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--rose-deep); margin-bottom:0.5rem; }
+  .success-card p { color:var(--text-light); font-size:0.9rem; line-height:1.6; }
+  .cal-btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:0.5rem;
+    width:100%; padding:1rem; border:none; border-radius:14px; margin-top:0.8rem;
+    background:linear-gradient(135deg,#4CAF50,#2e7a2e); color:white;
+    font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:500;
+    cursor:pointer; transition:transform 0.15s,box-shadow 0.15s; text-decoration:none;
+  }
+  .cal-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(46,122,46,0.3); }
+
+  /* ── DASHBOARD ── */
+  .dash-login { background:var(--white); border-radius:28px; padding:2.5rem 2rem; box-shadow:0 8px 40px rgba(224,122,151,0.15); text-align:center; }
+  .dash-login h2 { font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--rose-deep); margin-bottom:0.3rem; }
+  .dash-login p { font-size:0.85rem; color:var(--text-light); margin-bottom:1.5rem; }
+
+  .dash-header { background:linear-gradient(135deg,var(--rose-deep),var(--lavender-deep)); border-radius:24px; padding:1.5rem; color:white; margin-bottom:1.5rem; position:relative; overflow:hidden; }
+  .dash-header::after { content:'🌸'; position:absolute; right:1.2rem; top:50%; transform:translateY(-50%); font-size:3rem; opacity:0.25; }
+  .dash-header h2 { font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:0.2rem; }
+  .dash-header p { font-size:0.82rem; opacity:0.85; }
+
+  .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:0.8rem; margin-bottom:1.4rem; }
+  .stat-box { background:var(--white); border-radius:16px; padding:1rem 0.8rem; text-align:center; box-shadow:0 2px 12px rgba(224,122,151,0.1); }
+  .stat-box .num { font-family:'Playfair Display',serif; font-size:1.9rem; color:var(--rose-deep); }
+  .stat-box .lbl { font-size:0.68rem; color:var(--text-light); text-transform:uppercase; letter-spacing:0.08em; }
+
+  .section-card { background:var(--white); border-radius:16px; padding:1.2rem; box-shadow:0 2px 12px rgba(224,122,151,0.08); margin-bottom:1.2rem; }
+  .section-title { font-family:'Playfair Display',serif; font-size:1.05rem; color:var(--text); margin-bottom:0.8rem; padding-bottom:0.4rem; border-bottom:2px solid var(--blush); }
+
+  .rsvp-item { background:var(--blush); border-radius:14px; padding:1rem 1.1rem; margin-bottom:0.7rem; border-left:4px solid var(--rose-deep); }
+  .rsvp-item.declined { border-left-color:#ccc; opacity:0.7; }
+  .rsvp-item.spa-kid  { border-left-color:var(--lavender-deep); }
+  .rsvp-row { display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; }
+  .child-name { font-weight:600; font-size:0.95rem; }
+  .parent-info { font-size:0.78rem; color:var(--text-light); margin-top:0.15rem; }
+  .rsvp-extra { font-size:0.75rem; color:var(--text-light); margin-top:0.4rem; }
+  .badges { display:flex; gap:0.3rem; flex-wrap:wrap; justify-content:flex-end; }
+  .badge { display:inline-block; padding:0.2rem 0.6rem; border-radius:20px; font-size:0.68rem; font-weight:600; white-space:nowrap; }
+  .badge.yes { background:#d4f0d4; color:#2a6a2a; }
+  .badge.no  { background:#fde8ee; color:var(--rose-deep); }
+  .badge.spa { background:rgba(201,184,232,0.4); color:var(--lavender-deep); }
+  .badge.gen { background:rgba(255,214,192,0.5); color:#b06a3a; }
+
+  .contacts-ta { width:100%; min-height:80px; border:1px solid #f0dde5; border-radius:10px; padding:0.7rem; font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--text); background:var(--cream); resize:none; margin-bottom:0.6rem; }
+
+  .filter-row { display:flex; gap:0.4rem; margin-bottom:0.8rem; flex-wrap:wrap; }
+  .filter-btn { padding:0.35rem 0.85rem; border:2px solid #f0dde5; border-radius:20px; background:none; font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text-light); transition:all 0.2s; }
+  .filter-btn.active { border-color:var(--rose-deep); color:var(--rose-deep); background:var(--blush); font-weight:500; }
+
+  .guest-tags { display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.8rem; }
+  .guest-tag { border-radius:20px; padding:0.3rem 0.5rem 0.3rem 0.8rem; font-size:0.78rem; color:var(--text); display:flex; align-items:center; gap:0.3rem; }
+  .guest-tag.spa-tag { background:rgba(201,184,232,0.35); }
+  .guest-tag.gen-tag { background:var(--blush); }
+  .guest-tag .x { background:rgba(224,122,151,0.2); border:none; cursor:pointer; color:var(--rose-deep); font-size:0.75rem; line-height:1; padding:0.15rem 0.35rem; border-radius:20px; font-weight:700; transition:background 0.2s; }
+  .guest-tag .x:hover { background:rgba(224,122,151,0.5); }
+
+  .add-row { display:flex; gap:0.5rem; flex-wrap:wrap; }
+  .add-row input { flex:1; min-width:120px; }
+  .add-row select { flex:0 0 auto; width:auto; padding:0.6rem 0.8rem; font-size:0.85rem; }
+  .add-row button { padding:0.6rem 1.1rem; border:none; border-radius:10px; background:linear-gradient(135deg,var(--rose-deep),var(--lavender-deep)); color:white; font-family:'DM Sans',sans-serif; font-size:0.88rem; cursor:pointer; white-space:nowrap; }
+
+  .logout-btn { background:none; border:2px solid #f0dde5; border-radius:10px; padding:0.5rem 1rem; font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--text-light); cursor:pointer; margin-bottom:1rem; transition:all 0.2s; }
+  .logout-btn:hover { border-color:var(--rose); color:var(--rose-deep); }
+
+  .dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .dot.spa { background:var(--lavender-deep); }
+  .dot.gen { background:var(--rose); }
+  .legend { display:flex; gap:0.8rem; flex-wrap:wrap; margin-bottom:0.8rem; }
+  .legend span { font-size:0.75rem; color:var(--text-light); display:flex; align-items:center; gap:0.3rem; }
+
+  .bottom-nav { position:fixed; bottom:0;left:0;right:0; background:rgba(255,248,245,0.96); backdrop-filter:blur(12px); border-top:1px solid #f0dde5; display:flex; z-index:100; }
+  .nav-btn { flex:1; padding:0.8rem; border:none; background:none; font-family:'DM Sans',sans-serif; font-size:0.7rem; color:var(--text-light); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:0.2rem; transition:color 0.2s; }
+  .nav-btn .ni { font-size:1.3rem; }
+  .nav-btn.active { color:var(--rose-deep); font-weight:500; }
+
+  .pb-nav { padding-bottom:5rem; }
+  .toast { position:fixed; bottom:5rem; left:50%; transform:translateX(-50%) translateY(20px); background:var(--text); color:white; padding:0.7rem 1.5rem; border-radius:20px; font-size:0.85rem; opacity:0; transition:all 0.3s; z-index:200; white-space:nowrap; pointer-events:none; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .small { font-size:0.8rem; color:var(--text-light); }
+  .mt1 { margin-top:1rem; }
+  .empty { text-align:center; padding:1.5rem; color:var(--text-light); font-size:0.85rem; }
+</style>
+</head>
+<body>
+
+<div class="petal" style="left:8%;animation-duration:9s;animation-delay:0s;">🌸</div>
+<div class="petal" style="left:22%;animation-duration:13s;animation-delay:2s;">✿</div>
+<div class="petal" style="left:48%;animation-duration:10s;animation-delay:4s;">🌷</div>
+<div class="petal" style="left:68%;animation-duration:12s;animation-delay:1s;">🌸</div>
+<div class="petal" style="left:85%;animation-duration:11s;animation-delay:3s;">💮</div>
+<div class="petal" style="left:38%;animation-duration:14s;animation-delay:6s;">✿</div>
+
+<div id="toast" class="toast"></div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="showTab('invite')" id="nav-invite"><span class="ni">🎀</span>Invite</button>
+  <button class="nav-btn" id="nav-rsvp" style="display:none;"><span class="ni">📝</span>RSVP</button>
+  <button class="nav-btn" onclick="showTab('dashboard')" id="nav-dashboard"><span class="ni">👑</span>Dashboard</button>
+</nav>
+
+<div class="container pb-nav">
+
+  <!-- ===== INVITE (clean — no time shown) ===== -->
+  <div id="screen-invite" class="screen active">
+    <div class="invite-card">
+      <div class="emoji-row">🌸 🎀 ✨ 🌷</div>
+      <h1>Zara's <span>Birthday Playdate</span></h1>
+      <p class="tagline">You're invited to something special</p>
+
+      <div class="details-grid">
+        <div class="detail-pill">
+          <span class="icon">📅</span>
+          <div class="label">Date</div>
+          <div class="value">Saturday, 28 March</div>
+        </div>
+        <div class="detail-pill">
+          <span class="icon">📍</span>
+          <div class="label">Venue</div>
+          <div class="value">The Bright Spot</div>
+        </div>
+        <div class="detail-pill full">
+          <span class="icon">📍</span>
+          <div class="label">Address</div>
+          <div class="value">The Clubhouse at The Bright Spot, 2a Glover Rd, Ikoyi, Lagos</div>
+        </div>
+      </div>
+
+      <div class="deadline-note">
+        📋 Please RSVP by <strong>15 March</strong> to enable planning. We'd love to have you there!
+      </div>
+
+      <p class="small" style="margin-bottom:1.2rem;">Parents are welcome to drop off. Enter your child's name below to see your personalised invite details and RSVP.</p>
+
+      <div class="divider"></div>
+
+      <div class="access-section">
+        <h3>Ready to RSVP? 🌸</h3>
+        <p>Enter your child's name to get started</p>
+        <input type="text" id="guestNameInput" placeholder="Child's first name…" autocomplete="off" onkeydown="if(event.key==='Enter')checkAccess()" />
+        <p id="accessError" class="error-msg">Hmm, we don't see that name on our list. Please check the spelling!</p>
+        <button class="btn btn-primary" onclick="checkAccess()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RSVP FORM (details revealed here) ===== -->
+  <div id="screen-rsvp" class="screen">
+    <div class="rsvp-card">
+      <h2 id="rsvpHeading">RSVP 🌸</h2>
+      <p class="sub">Just a few details — takes under a minute!</p>
+
+      <!-- Personalised event banner shown here -->
+      <div id="eventBanner" class="event-banner">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="field">
+        <label>Child's Name</label>
+        <input type="text" id="f_childName" readonly style="background:#f5f0f2;cursor:default;" />
+      </div>
+      <div class="field">
+        <label>Child's Age</label>
+        <input type="number" id="f_childAge" placeholder="e.g. 5" min="1" max="18" />
+      </div>
+      <div class="field">
+        <label>Parent / Guardian Name</label>
+        <input type="text" id="f_parentName" placeholder="Your full name" />
+      </div>
+      <div class="field">
+        <label>WhatsApp Number</label>
+        <input type="tel" id="f_whatsapp" placeholder="+234 800 000 0000" />
+      </div>
+      <div class="field">
+        <label>Email Address <span class="small">(optional)</span></label>
+        <input type="email" id="f_email" placeholder="your@email.com" />
+      </div>
+      <div class="field">
+        <label>Will you be attending?</label>
+        <div class="attend-toggle">
+          <button class="attend-btn yes" id="btn-yes" onclick="setAttendance('yes')">✅ Yes, we'll be there!</button>
+          <button class="attend-btn no"  id="btn-no"  onclick="setAttendance('no')">😔 Can't make it</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt1" onclick="submitRSVP()">Submit RSVP 🎀</button>
+      <button class="btn btn-secondary" style="margin-top:0.5rem;" onclick="showTab('invite')">← Back</button>
+    </div>
+  </div>
+
+  <!-- ===== SUCCESS ===== -->
+  <div id="screen-success" class="screen">
+    <div class="success-card">
+      <span id="successEmoji" class="big-emoji">🎉</span>
+      <h2 id="successTitle">You're confirmed!</h2>
+      <p id="successMsg"></p>
+      <a id="calendarBtn" href="#" class="cal-btn" style="display:none;" target="_blank">📅 Add to Calendar</a>
+      <button class="btn btn-secondary mt1" onclick="showTab('invite')">Back to Invite</button>
+    </div>
+  </div>
+
+  <!-- ===== DASHBOARD ===== -->
+  <div id="screen-dashboard" class="screen">
+    <div id="dashLogin">
+      <div class="dash-login">
+        <div style="font-size:2.5rem;margin-bottom:0.5rem;">👑</div>
+        <h2>Host Dashboard</h2>
+        <p>Enter your password to manage RSVPs and the guest list</p>
+        <input type="password" id="dashPassInput" placeholder="Password" onkeydown="if(event.key==='Enter')checkDashPass()" />
+        <p id="dashPassError" class="error-msg">Incorrect password. Please try again.</p>
+        <button class="btn btn-primary mt1" onclick="checkDashPass()">Enter Dashboard →</button>
+      </div>
+    </div>
+
+    <div id="dashContent" style="display:none;">
+      <button class="logout-btn" onclick="logoutDash()">← Log out</button>
+
+      <div class="dash-header">
+        <h2>Zara's Birthday Playdate 🌸</h2>
+        <p>Saturday, 28 March · The Clubhouse, 2a Glover Rd, Ikoyi</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box"><div class="num" id="statInvited">0</div><div class="lbl">Invited</div></div>
+        <div class="stat-box"><div class="num" id="statYes">0</div><div class="lbl">Confirmed</div></div>
+        <div class="stat-box"><div class="num" id="statNo">0</div><div class="lbl">Declined</div></div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">📱 WhatsApp Broadcast Contacts</div>
+        <div class="filter-row">
+          <button class="filter-btn active" id="cf-all" onclick="setContactFilter('all')">All confirmed</button>
+          <button class="filter-btn" id="cf-spa" onclick="setContactFilter('spa')">Spa kids only</button>
+          <button class="filter-btn" id="cf-gen" onclick="setContactFilter('gen')">General only</button>
+        </div>
+        <p class="small" style="margin-bottom:0.7rem;">Copy into a WhatsApp Broadcast List to send reminders</p>
+        <textarea class="contacts-ta" id="contactsBox" readonly placeholder="Confirmed guest numbers will appear here…"></textarea>
+        <button class="btn btn-primary" style="margin-top:0;" onclick="copyContacts()">Copy Numbers 📋</button>
+      </div>
+
+      <div class="section-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;padding-bottom:0.4rem;border-bottom:2px solid var(--blush);">
+          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--text);">🌸 All RSVPs</div>
+          <a href="https://docs.google.com/spreadsheets" target="_blank" style="padding:0.35rem 0.9rem;border:2px solid var(--rose);border-radius:20px;background:none;font-family:'DM Sans',sans-serif;font-size:0.75rem;color:var(--rose-deep);cursor:pointer;font-weight:500;text-decoration:none;">📊 View in Sheets</a>
+        </div>
+        <div class="legend">
+          <span><span class="dot spa"></span> Spa kid (12PM)</span>
+          <span><span class="dot gen"></span> General (2PM)</span>
+        </div>
+        <div class="filter-row">
+          <button class="filter-btn active" id="rf-all" onclick="setRsvpFilter('all')">All</button>
+          <button class="filter-btn" id="rf-spa" onclick="setRsvpFilter('spa')">Spa kids</button>
+          <button class="filter-btn" id="rf-gen" onclick="setRsvpFilter('gen')">General</button>
+          <button class="filter-btn" id="rf-yes" onclick="setRsvpFilter('yes')">Confirmed</button>
+          <button class="filter-btn" id="rf-no"  onclick="setRsvpFilter('no')">Declined</button>
+        </div>
+        <div id="rsvpList"><div class="empty">No RSVPs yet — share the invite link!</div></div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">✏️ Manage Guest List</div>
+        <p class="small" style="margin-bottom:0.8rem;">
+          <span style="display:inline-flex;align-items:center;gap:0.3rem;"><span class="dot spa"></span> Purple = Spa kid (12PM) &nbsp;</span>
+          <span style="display:inline-flex;align-items:center;gap:0.3rem;"><span class="dot gen"></span> Pink = General (2PM)</span>
+        </p>
+        <div id="guestTags" class="guest-tags"></div>
+        <div class="add-row">
+          <input type="text" id="newGuestInput" placeholder="Child's name…" onkeydown="if(event.key==='Enter')addGuest()" />
+          <select id="newGuestType">
+            <option value="spa">🛁 Spa</option>
+            <option value="gen">🎈 General</option>
+          </select>
+          <button onclick="addGuest()">+ Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+const DASH_PASS = '320744';
+
+let guestList = [
+  // Spa kids (12PM)
+  ...['Zara','Maia','Mia','Alice','Alexandra','Alexis','Zoe','Saadiyah','Deborah','Adesuwa',
+      'Tomini','Tamilore','Soibifa','Derin','Niimah','Zara Attah','Zoe Attah','Tiara','Jadesola','Steph','Myka']
+    .map(n => ({name:n, type:'spa'})),
+  // General guests (2PM)
+  ...['Micah','Asa','Owen','Sir','Zhuri','Zayn','Zayd','Zaeem','Demi','Seyi',
+      'Mira','Jimi','Kenji','Adenike','Tade','Eliana','Nathan','Goke','Dayo','Dara']
+    .map(n => ({name:n, type:'gen'}))
+];
+
+let rsvps = [];
+let currentChild = '';
+let currentType  = 'gen';
+let attendance   = '';
+let dashLoggedIn = false;
+let contactFilter = 'all';
+let rsvpFilter    = 'all';
+
+// ── Storage ──
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwuO4me56wgot_nhtCqCfGI_XHyM04c8BKkgPZVvt-8xiuwfV9-yzdo-tk0Fr_aZcAQdw/exec';
+
+async function loadData() {
+  try {
+    const saved = localStorage.getItem('zara_guests');
+    if (saved) guestList = JSON.parse(saved);
+  } catch(e) {}
+}
+
+async function saveGuests() {
+  try { localStorage.setItem('zara_guests', JSON.stringify(guestList)); } catch(e) {}
+}
+
+function sendToSheet(entry) {
+  return new Promise((resolve) => {
+    // Build a URL with query parameters — most reliable method for Apps Script
+    const params = new URLSearchParams({
+      childName:  entry.childName,
+      childAge:   entry.childAge  || '',
+      guestType:  entry.guestType,
+      parentName: entry.parentName,
+      whatsapp:   entry.whatsapp,
+      email:      entry.email     || '',
+      attending:  entry.attending,
+      ts:         entry.ts
+    });
+
+    const url = SHEET_URL + '?' + params.toString();
+
+    // Use a throwaway image request — bypasses CORS entirely
+    const img = new Image();
+    img.onload  = () => resolve(true);
+    img.onerror = () => resolve(true); // still resolves — Apps Script returns non-image so onerror fires but the request goes through
+    img.src = url;
+
+    // Fallback resolve after 5s
+    setTimeout(() => resolve(true), 5000);
+  });
+}
+
+function sendToGoogleForm(entry) {
+  return new Promise((resolve) => {
+    const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfc8PKa3zs7_3H_AG4re-CbhjTEkbTgLSR6ZAAQR8DbkHSE6g/formResponse';
+    const params = new URLSearchParams({
+      'entry.1039876405': entry.childName  || '',
+      'entry.1835776163': entry.childAge   || '',
+      'entry.910567938':  entry.parentName || '',
+      'entry.1415537976': entry.whatsapp   || '',
+      'entry.1219657714': entry.email      || '',
+      'entry.313163990':  entry.attending  || '',
+      'entry.682344722':  entry.guestType  || ''
+    });
+
+    // Use hidden iframe + form POST — most reliable cross-origin method for Google Forms
+    const iframe = document.createElement('iframe');
+    iframe.name = 'gform_iframe_' + Date.now();
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = FORM_URL;
+    form.target = iframe.name;
+    form.style.display = 'none';
+
+    params.forEach((value, key) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+
+    setTimeout(() => {
+      document.body.removeChild(form);
+      document.body.removeChild(iframe);
+      resolve(true);
+    }, 3000);
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+  if (tab === 'dashboard' && dashLoggedIn) renderDashboard();
+}
+
+// ── Access check ──
+function checkAccess() {
+  const val   = document.getElementById('guestNameInput').value.trim();
+  const errEl = document.getElementById('accessError');
+  const match = guestList.find(g => g.name.toLowerCase() === val.toLowerCase());
+  if (!match) { errEl.style.display = 'block'; return; }
+  const already = rsvps.find(r => r.childName.toLowerCase() === match.name.toLowerCase());
+  if (already) { errEl.style.display='none'; showToast("You've already RSVPed! 🌸"); return; }
+  errEl.style.display = 'none';
+  currentChild = match.name;
+  currentType  = match.type;
+  attendance   = '';
+
+  // Reveal the RSVP tab now that name is verified
+  const rsvpNav = document.getElementById('nav-rsvp');
+  rsvpNav.style.display = 'flex';
+  rsvpNav.onclick = () => showTab('rsvp');
+
+  // Clear form
+  ['f_childAge','f_parentName','f_whatsapp','f_email'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f_childName').value = match.name;
+  document.getElementById('btn-yes').classList.remove('selected');
+  document.getElementById('btn-no').classList.remove('selected');
+
+  // Render personalised event banner
+  renderEventBanner(match.name, match.type);
+  showTab('rsvp');
+}
+
+function renderEventBanner(name, type) {
+  const banner = document.getElementById('eventBanner');
+  if (type === 'spa') {
+    banner.className = 'event-banner spa';
+    banner.innerHTML = `
+      <div class="banner-title">✨ Here's what's in store for ${name}!</div>
+      <div class="banner-row"><span class="bicon">🕛</span><span><strong>12:00 PM – 5:00 PM</strong> · Saturday, 28 March</span></div>
+      <div class="banner-row"><span class="bicon">📍</span><span>The Clubhouse at The Bright Spot, 2a Glover Rd, Ikoyi, Lagos</span></div>
+      <div class="banner-row"><span class="bicon">🛁</span><span>${name} and the girls will enjoy a <strong>private spa experience</strong> starting promptly at 12 noon, followed by lots of fun play all the way to 5 PM. It's going to be a gorgeous afternoon!</span></div>
+      <div class="arrival-note">⏰ Please drop off by <strong>11:45 AM</strong> so we can start right on time!</div>
+    `;
+  } else {
+    banner.className = 'event-banner gen';
+    banner.innerHTML = `
+      <div class="banner-title">🎉 Here's what's in store for ${name}!</div>
+      <div class="banner-row"><span class="bicon">🕑</span><span><strong>2:00 PM – 5:00 PM</strong> · Saturday, 28 March</span></div>
+      <div class="banner-row"><span class="bicon">📍</span><span>The Clubhouse at The Bright Spot, 2a Glover Rd, Ikoyi, Lagos</span></div>
+      <div class="banner-row"><span class="bicon">🛝</span><span>Join us for an <strong>afternoon of birthday fun</strong> — games, play, great food and good energy. Drop off at 2 PM and collect at 5 PM. We can't wait to celebrate with ${name}!</span></div>
+    `;
+  }
+}
+
+function setAttendance(val) {
+  attendance = val;
+  document.getElementById('btn-yes').classList.toggle('selected', val === 'yes');
+  document.getElementById('btn-no').classList.toggle('selected', val === 'no');
+}
+
+// ── Submit RSVP ──
+async function submitRSVP() {
+  const parentName = document.getElementById('f_parentName').value.trim();
+  const whatsapp   = document.getElementById('f_whatsapp').value.trim();
+  if (!parentName) { showToast('Please enter the parent name'); return; }
+  if (!whatsapp)   { showToast('Please enter a WhatsApp number'); return; }
+  if (!attendance) { showToast('Please select attendance'); return; }
+
+  const entry = {
+    childName:  currentChild,
+    childAge:   document.getElementById('f_childAge').value.trim(),
+    guestType:  currentType,
+    parentName,
+    whatsapp,
+    email:      document.getElementById('f_email').value.trim(),
+    attending:  attendance,
+    ts:         new Date().toISOString()
+  };
+
+  // Send to Google Sheets
+  const submitBtn = document.querySelector('#screen-rsvp .btn-primary');
+  submitBtn.textContent = 'Submitting…';
+  submitBtn.disabled = true;
+
+  const [ok] = await Promise.all([
+    sendToSheet(entry),
+    sendToGoogleForm(entry)
+  ]);
+
+  submitBtn.textContent = 'Submit RSVP 🎀';
+  submitBtn.disabled = false;
+
+  // Also keep a local copy for the session so dashboard shows it
+  rsvps.push(entry);
+
+  if (attendance === 'yes') {
+    const dropoff = currentType === 'spa' ? '11:45 AM (for a 12 noon start)' : '2:00 PM';
+    document.getElementById('successEmoji').textContent = '🎉';
+    document.getElementById('successTitle').textContent = "You're confirmed!";
+    document.getElementById('successMsg').textContent =
+      `We're so excited to see ${currentChild} at Zara's birthday playdate! Drop-off is at ${dropoff} at The Clubhouse, The Bright Spot. We'll be in touch closer to the date! 🌸`;
+    // Show and wire up calendar button
+    const calBtn = document.getElementById('calendarBtn');
+    calBtn.href = generateCalendarLink(currentType);
+    calBtn.download = 'zaras-birthday-playdate.ics';
+    calBtn.style.display = 'flex';
+  } else {
+    document.getElementById('successEmoji').textContent = '💌';
+    document.getElementById('successTitle').textContent = "Thanks for letting us know!";
+    document.getElementById('successMsg').textContent =
+      `We'll miss ${currentChild}! Thank you for taking the time to respond.`;
+    document.getElementById('calendarBtn').style.display = 'none';
+  }
+
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-success').classList.add('active');
+  document.getElementById('nav-rsvp').style.display = 'none';
+}
+
+// ── Dashboard ──
+function checkDashPass() {
+  const val = document.getElementById('dashPassInput').value;
+  if (val === DASH_PASS) {
+    document.getElementById('dashPassError').style.display = 'none';
+    dashLoggedIn = true;
+    document.getElementById('dashLogin').style.display = 'none';
+    document.getElementById('dashContent').style.display = 'block';
+    renderDashboard();
+  } else {
+    document.getElementById('dashPassError').style.display = 'block';
+  }
+}
+
+function logoutDash() {
+  dashLoggedIn = false;
+  document.getElementById('dashPassInput').value = '';
+  document.getElementById('dashLogin').style.display = 'block';
+  document.getElementById('dashContent').style.display = 'none';
+}
+
+function setContactFilter(f) {
+  contactFilter = f;
+  ['all','spa','gen'].forEach(k => document.getElementById('cf-'+k).classList.toggle('active', k===f));
+  renderContacts();
+}
+
+function setRsvpFilter(f) {
+  rsvpFilter = f;
+  ['all','spa','gen','yes','no'].forEach(k => document.getElementById('rf-'+k).classList.toggle('active', k===f));
+  renderRsvpList();
+}
+
+function renderContacts() {
+  const confirmed = rsvps.filter(r => r.attending === 'yes');
+  let filtered = confirmed;
+  if (contactFilter === 'spa') filtered = confirmed.filter(r => r.guestType === 'spa');
+  if (contactFilter === 'gen') filtered = confirmed.filter(r => r.guestType === 'gen');
+  document.getElementById('contactsBox').value =
+    filtered.length ? filtered.map(r => `${r.parentName}: ${r.whatsapp}`).join('\n') : '(No matching confirmed guests yet)';
+}
+
+function renderRsvpList() {
+  let filtered = [...rsvps].reverse();
+  if (rsvpFilter === 'spa') filtered = filtered.filter(r => r.guestType === 'spa');
+  if (rsvpFilter === 'gen') filtered = filtered.filter(r => r.guestType === 'gen');
+  if (rsvpFilter === 'yes') filtered = filtered.filter(r => r.attending === 'yes');
+  if (rsvpFilter === 'no')  filtered = filtered.filter(r => r.attending === 'no');
+
+  const listEl = document.getElementById('rsvpList');
+  if (!filtered.length) { listEl.innerHTML = '<div class="empty">No RSVPs match this filter yet.</div>'; return; }
+  listEl.innerHTML = filtered.map(r => `
+    <div class="rsvp-item ${r.attending==='no'?'declined':''} ${r.guestType==='spa'?'spa-kid':''}">
+      <div class="rsvp-row">
+        <div>
+          <div class="child-name">${r.childName}${r.childAge?' (age '+r.childAge+')':''}</div>
+          <div class="parent-info">Parent: ${r.parentName}</div>
+        </div>
+        <div class="badges">
+          <span class="badge ${r.guestType}">${r.guestType==='spa'?'🛁 Spa':'🎈 General'}</span>
+          <span class="badge ${r.attending}">${r.attending==='yes'?'✅ Coming':'❌ Declined'}</span>
+        </div>
+      </div>
+      <div class="rsvp-extra">
+        📱 ${r.whatsapp}${r.email?' · ✉️ '+r.email:''}
+      </div>
+    </div>`).join('');
+}
+
+function renderDashboard() {
+  if (!dashLoggedIn) return;
+  document.getElementById('statInvited').textContent = guestList.length;
+  document.getElementById('statYes').textContent     = rsvps.filter(r=>r.attending==='yes').length;
+  document.getElementById('statNo').textContent      = rsvps.filter(r=>r.attending==='no').length;
+  renderContacts();
+  renderRsvpList();
+  document.getElementById('guestTags').innerHTML = guestList.map((g,i) =>
+    `<span class="guest-tag ${g.type}-tag" title="${g.type==='spa'?'Spa kid — 12PM':'General — 2PM'}">
+      ${g.type==='spa'?'🛁':'🎈'} ${g.name}
+      <button class="x" onclick="removeGuest(${i})" title="Remove">🗑</button>
+    </span>`).join('');
+}
+
+function exportCSV() {
+  showToast('Download your RSVPs directly from Google Sheets 📊');
+}
+
+function generateCalendarLink(type) {
+  // Event times in Lagos (WAT = UTC+1)
+  const startHour = type === 'spa' ? 12 : 14; // 12PM or 2PM
+  const start = `20260328T${String(startHour).padStart(2,'0')}0000`; // local time
+  const end   = `20260328T170000`; // 5PM for both
+
+  // ICS file content (works on Apple Calendar, Outlook, and as fallback)
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Zara Birthday Playdate//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `DTSTART;TZID=Africa/Lagos:${start}`,
+    `DTEND;TZID=Africa/Lagos:${end}`,
+    'SUMMARY:Zara\'s Birthday Playdate 🌸',
+    'DESCRIPTION:Join us for Zara\'s birthday playdate at The Clubhouse\\, The Bright Spot!',
+    'LOCATION:The Clubhouse at The Bright Spot\\, 2a Glover Rd\\, Ikoyi\\, Lagos',
+    'STATUS:CONFIRMED',
+    // Reminder 1 day before
+    'BEGIN:VALARM',
+    'TRIGGER:-P1D',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:Reminder: Zara\'s Birthday Playdate tomorrow! 🌸',
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  // Create a data URI for the ICS file
+  const blob = new Blob([icsContent], {type: 'text/calendar;charset=utf-8'});
+  return URL.createObjectURL(blob);
+}
+
+function copyContacts() {
+  const val = document.getElementById('contactsBox').value;
+  if (!val || val.startsWith('(No')) { showToast('No confirmed guests yet!'); return; }
+  navigator.clipboard.writeText(val)
+    .then(() => showToast('Copied! 📋'))
+    .catch(() => { document.getElementById('contactsBox').select(); document.execCommand('copy'); showToast('Copied! 📋'); });
+}
+
+async function addGuest() {
+  const inp  = document.getElementById('newGuestInput');
+  const type = document.getElementById('newGuestType').value;
+  const name = inp.value.trim();
+  if (!name) return;
+  if (guestList.find(g => g.name.toLowerCase() === name.toLowerCase())) { showToast('Already on the list!'); return; }
+  guestList.push({name, type});
+  await saveGuests();
+  inp.value = '';
+  renderDashboard();
+  showToast(`${name} added! ${type==='spa'?'🛁':'🎈'}`);
+}
+
+async function removeGuest(idx) {
+  const g = guestList[idx];
+  if (!confirm(`Remove "${g.name}" from the guest list?`)) return;
+  guestList.splice(idx, 1);
+  await saveGuests();
+  renderDashboard();
+  showToast(`${g.name} removed`);
+}
+
+loadData().then(() => { if (dashLoggedIn) renderDashboard(); });
+</script>
+</body>
+</html>
